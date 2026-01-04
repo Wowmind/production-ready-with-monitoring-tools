@@ -1,0 +1,71 @@
+name: CI/CD to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER: batman-eks-cluster
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      #  Checkout the repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      #  Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      #  Login to ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      #  Build and push Home App image
+      - name: Build & Push Home App Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/home-app:$IMAGE_TAG ./home-app
+          docker push $ECR_REGISTRY/home-app:$IMAGE_TAG
+
+      #  Build and push Profile App image
+      - name: Build & Push Profile App Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/profile-app:$IMAGE_TAG ./profile-app
+          docker push $ECR_REGISTRY/profile-app:$IMAGE_TAG
+
+      #  Update kubeconfig for EKS
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name $EKS_CLUSTER
+
+      #  Deploy Home App Helm chart
+      - name: Deploy Home App with Helm
+        run: |
+          helm upgrade --install home-helm ./home-helm \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/home-app \
+            --set image.tag=${{ github.sha }}
+
+      #  Deploy Profile App Helm chart
+      - name: Deploy Profile App with Helm
+        run: |
+          helm upgrade --install profile-helm ./profile-helm \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/profile-app \
+            --set image.tag=${{ github.sha }}
