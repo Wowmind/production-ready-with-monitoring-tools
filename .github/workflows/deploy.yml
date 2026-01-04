@@ -37,8 +37,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/home-app:$IMAGE_TAG ./home
-          docker push $ECR_REGISTRY/home:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/home-helm:$IMAGE_TAG ./home
+          docker push $ECR_REGISTRY/home-helm:$IMAGE_TAG
 
       #  Build and push Profile App image
       - name: Build & Push Profile App Image
@@ -46,8 +46,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/profile-app:$IMAGE_TAG ./profile
-          docker push $ECR_REGISTRY/profile:$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/profile-helm:$IMAGE_TAG ./profile
+          docker push $ECR_REGISTRY/profile-helm:$IMAGE_TAG
 
       #  Update kubeconfig for EKS
       - name: Update kubeconfig
@@ -60,12 +60,12 @@ jobs:
       - name: Deploy Home App with Helm
         run: |
           helm upgrade --install home-helm ./home-helm \
-            --set image.repository=${{ steps.login-ecr.outputs.registry }}/home \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/home-app \
             --set image.tag=${{ github.sha }}
 
       #  Deploy Profile App Helm chart
       - name: Deploy Profile App with Helm
         run: |
           helm upgrade --install profile-helm ./profile-helm \
-            --set image.repository=${{ steps.login-ecr.outputs.registry }}/profile \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/profile-app \
             --set image.tag=${{ github.sha }}
