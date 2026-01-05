@@ -6,7 +6,7 @@ image:
 containerPort: 5002
 service:
   type: LoadBalancer
-  port: 5002
+  port: 80
   targetPort: 5002
 resources: {
   limits: {
