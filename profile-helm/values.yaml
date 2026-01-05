@@ -2,7 +2,7 @@ name: profile-helm
 replicas: 1
 image:
   repository: profile-helm
-  tag: latest
+  tag: ""
 containerPort: 5002
 service:
   type: LoadBalancer

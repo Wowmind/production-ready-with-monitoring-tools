@@ -62,12 +62,12 @@ jobs:
       - name: Deploy Home App with Helm
         run: |
           helm upgrade --install home-helm ./home-helm \
-            --set image.repository=${{ steps.login-ecr.outputs.registry }}/home-app \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/home \
             --set image.tag=${{ github.sha }}
 
       #  Deploy Profile App Helm chart
       - name: Deploy Profile App with Helm
         run: |
           helm upgrade --install profile-helm ./profile-helm \
-            --set image.repository=${{ steps.login-ecr.outputs.registry }}/profile-app \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/profile \
             --set image.tag=${{ github.sha }}

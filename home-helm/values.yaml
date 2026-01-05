@@ -2,7 +2,7 @@ name: home-helm
 replicas: 1
 image:
   repository: home-helm
-  tag: latest
+  tag: ""
 containerPort: 5000
 service:
   type: LoadBalancer
