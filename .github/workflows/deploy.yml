@@ -8,7 +8,6 @@ on:
 env:
   AWS_REGION: us-east-1
   EKS_CLUSTER: batman-eks-cluster
-  ECR_REPO: batman-eks-app
   
 
 jobs:
@@ -62,12 +61,12 @@ jobs:
       - name: Deploy Home App with Helm
         run: |
           helm upgrade --install home-helm ./home-helm \
-            --set image.repository=${{ steps.login-ecr.outputs.registry }}/home \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/home-helm \
             --set image.tag=${{ github.sha }}
 
       #  Deploy Profile App Helm chart
       - name: Deploy Profile App with Helm
         run: |
           helm upgrade --install profile-helm ./profile-helm \
-            --set image.repository=${{ steps.login-ecr.outputs.registry }}/profile \
+            --set image.repository=${{ steps.login-ecr.outputs.registry }}/profile-helm \
             --set image.tag=${{ github.sha }}
