@@ -39,7 +39,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/home-helm:$IMAGE_TAG ./home
+          docker build -t $ECR_REGISTRY/home-helm:$IMAGE_TAG ./home-helm
           docker push $ECR_REGISTRY/home-helm:$IMAGE_TAG
 
       #  Build and push Profile App image
@@ -48,7 +48,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/profile-helm:$IMAGE_TAG ./profile
+          docker build -t $ECR_REGISTRY/profile-helm:$IMAGE_TAG ./profile-helm
           docker push $ECR_REGISTRY/profile-helm:$IMAGE_TAG
 
       #  Update kubeconfig for EKS
